@@ -5,6 +5,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 
 /**
  * Sets up vert.x routes and start the server.
@@ -22,6 +23,7 @@ public class ServerVerticle extends AbstractVerticle {
         router.get("/rest/blog/listCategories").handler(this::handleGetListCategories);
         router.get("/rest/blog/blogCount/:blogSection").handler(this::handleGetBlogCount);
         router.get("/rest/blog/blogItems/Main/:pageNumber").handler(this::handleGetBlogItemsMainCategoryByPageNumber);
+        router.route("/*").handler(StaticHandler.create());
 
         vertx.createHttpServer().requestHandler(router::accept).
                 listen(Integer.getInteger("http.port"), System.getProperty("http.address"));
