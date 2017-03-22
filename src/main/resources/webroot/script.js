@@ -1,7 +1,7 @@
 // script.js
 
 // create the module and name it blogApp
-var blogApp = angular.module('blogApp', ['ngRoute','ngAnimate','ui.bootstrap']);
+var blogApp = angular.module('blogApp', ['ngRoute','ngAnimate','ui.bootstrap','ngSanitize']);
 
 //ng-routes
 blogApp.config(function($routeProvider) {
@@ -31,8 +31,18 @@ blogApp.config(function($routeProvider) {
 
     });
 
+blogApp.directive('readmoreDirective', function() {
+    return function(scope, element, attrs) {
+	scope.$watch('blogItem', function(){
+		angular.element('article').readmore();
+	});	
+
+    }
+});
+
 // create the controller and inject Angular's $scope
 blogApp.controller('mainCtrl', function($scope, $http, $log, $sce) {
+    $scope.pageClass = 'page-home';
     $scope.blogSection = 'Main';
 
     $scope.maxSize = 5;
@@ -82,10 +92,10 @@ blogApp.controller('mainCtrl', function($scope, $http, $log, $sce) {
 
 // create the controller and inject Angular's $scope
 blogApp.controller('aboutCtrl', function($scope) {
-
+    $scope.pageClass = 'page-about';
 });
 
 // create the controller and inject Angular's $scope
 blogApp.controller('notesCtrl', function($scope) {
-
+    $scope.pageClass = 'page-notes';
 });
