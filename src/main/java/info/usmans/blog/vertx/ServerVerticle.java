@@ -1,6 +1,9 @@
 package info.usmans.blog.vertx;
 
+import com.google.gson.Gson;
+import info.usmans.blog.model.BlogItem;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -13,20 +16,49 @@ import io.vertx.ext.web.handler.StaticHandler;
  * @author Usman Saleem
  */
 public class ServerVerticle extends AbstractVerticle {
+    private BlogItem[] blogItems;
+    private Gson gson = new Gson();
+    private int totalPages;
+    private int itemsOnLastPage;
 
     @Override
     public void start() {
         initStaticData();
 
-        Router router = Router.router(vertx);
-        router.route().handler(BodyHandler.create());
-        router.get("/rest/blog/listCategories").handler(this::handleGetListCategories);
-        router.get("/rest/blog/blogCount/:blogSection").handler(this::handleGetBlogCount);
-        router.get("/rest/blog/blogItems/Main/:pageNumber").handler(this::handleGetBlogItemsMainCategoryByPageNumber);
-        router.route("/*").handler(StaticHandler.create());
+        vertx.fileSystem().readFile("data.json", res -> {
+            if (res.succeeded()) {
 
-        vertx.createHttpServer().requestHandler(router::accept).
-                listen(Integer.getInteger("http.port"), System.getProperty("http.address"));
+                blogItems = gson.fromJson(res.result().toString(), BlogItem[].class);
+                totalPages = blogItems.length / 10; //10 items per page
+                itemsOnLastPage = blogItems.length % 10;
+                if (itemsOnLastPage != 0) {
+                    totalPages++;
+                }
+
+                System.out.println("Total pages: " + totalPages);
+                System.out.println("Items on last page: " + itemsOnLastPage);
+
+
+                Router router = Router.router(vertx);
+                router.route().handler(BodyHandler.create());
+                router.get("/rest/blog/highestPage").handler(this::handleGetHighestPage);
+                router.get("/rest/blog/listCategories").handler(this::handleGetListCategories);
+                router.get("/rest/blog/blogCount").handler(this::handleGetBlogCount);
+                router.get("/rest/blog/blogItems/:pageNumber").handler(this::handleGetBlogItemsMainCategoryByPageNumber);
+                router.route("/*").handler(StaticHandler.create());
+
+                vertx.createHttpServer().requestHandler(router::accept).
+                        listen(Integer.getInteger("http.port"), System.getProperty("http.address"));
+
+            } else {
+                throw new RuntimeException(res.cause());
+            }
+        });
+
+    }
+
+    private void handleGetHighestPage(RoutingContext routingContext) {
+        routingContext.response().putHeader("content-type", "text/plain").end(String.valueOf(totalPages));
     }
 
     private void handleGetListCategories(RoutingContext routingContext) {
@@ -34,13 +66,7 @@ public class ServerVerticle extends AbstractVerticle {
     }
 
     private void handleGetBlogCount(RoutingContext routingContext) {
-        String blogSection = routingContext.request().getParam("blogSection");
-        HttpServerResponse response = routingContext.response();
-        if (blogSection == null || !"Main".equals(blogSection)) {
-            sendError(400, response, "Bad Request - Invalid Blog");
-        } else {
-            response.putHeader("content-type", "plain/text").end("117");
-        }
+        routingContext.response().putHeader("content-type", "text/plain").end(String.valueOf(blogItems.length));
     }
 
     private void handleGetBlogItemsMainCategoryByPageNumber(RoutingContext routingContext) {
@@ -64,6 +90,10 @@ public class ServerVerticle extends AbstractVerticle {
 
     private void sendError(int statusCode, HttpServerResponse response, String message) {
         response.setStatusCode(statusCode).end(message);
+    }
+
+    private void loadBlogData(Handler<Void> done) {
+
     }
 
     private void initStaticData() {

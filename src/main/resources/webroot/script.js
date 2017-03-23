@@ -43,11 +43,7 @@ blogApp.directive('readmoreDirective', function() {
 // create the controller and inject Angular's $scope
 blogApp.controller('mainCtrl', function($scope, $http, $log, $sce) {
     $scope.pageClass = 'page-home';
-    $scope.blogSection = 'Main';
-
     $scope.maxSize = 5;
-    $scope.bigCurrentPage = 1;
-
 
     $scope.trustBlogHtml = function(html) {
               return $sce.trustAsHtml(html);
@@ -70,7 +66,7 @@ blogApp.controller('mainCtrl', function($scope, $http, $log, $sce) {
 
     //when page changes, fetch new data
     $scope.pageChanged = function() {
-        $http.get('rest/blog/blogItems/' + $scope.blogSection + '/' + $scope.bigCurrentPage).then(function(response) {
+        $http.get('rest/blog/blogItems/' + $scope.bigCurrentPage).then(function(response) {
                    $scope.blogItems = response.data;
                    window.scrollTo(0,0);
             });
@@ -78,16 +74,21 @@ blogApp.controller('mainCtrl', function($scope, $http, $log, $sce) {
 
     //function to get updated blog count, specially when section changes
     $scope.getBlogCount = function() {
-    //blog count
-       $http.get('rest/blog/blogCount/'+$scope.blogSection).then(function(response) {
+       $http.get('rest/blog/blogCount').then(function(response) {
                       $scope.bigTotalItems = response.data;
+                      $scope.pageChanged();
            });
     };
+    $scope.getHighestPage =  function() {
+                                //blog count
+                                   $http.get('rest/blog/highestPage').then(function(response) {
+                                                  $scope.bigCurrentPage = response.data;
+                                                  $scope.getBlogCount();
 
-    $scope.getBlogCount();
-    $scope.pageChanged();
+                                       });
+                                };
 
-
+    $scope.getHighestPage();
 });
 
 // create the controller and inject Angular's $scope
