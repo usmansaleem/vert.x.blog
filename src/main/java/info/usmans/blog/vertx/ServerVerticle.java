@@ -36,8 +36,8 @@ public class ServerVerticle extends AbstractVerticle {
     private void handleGetBlogCount(RoutingContext routingContext) {
         String blogSection = routingContext.request().getParam("blogSection");
         HttpServerResponse response = routingContext.response();
-        if(blogSection == null || !"Main".equals(blogSection)) {
-            sendError(400, response);
+        if (blogSection == null || !"Main".equals(blogSection)) {
+            sendError(400, response, "Bad Request - Invalid Blog");
         } else {
             response.putHeader("content-type", "plain/text").end("117");
         }
@@ -46,26 +46,24 @@ public class ServerVerticle extends AbstractVerticle {
     private void handleGetBlogItemsMainCategoryByPageNumber(RoutingContext routingContext) {
         String pageNumberParam = routingContext.request().getParam("pageNumber");
         HttpServerResponse response = routingContext.response();
-        if(pageNumberParam == null) {
-            sendError(400, response);
+        if (pageNumberParam == null) {
+            sendError(400, response, "Bad Request - Invalid Page Number");
         } else {
             try {
                 int pageNumber = Integer.parseInt(pageNumberParam);
-                if(pageNumber <= 0) {
-                    sendError(400, response);
-                } else if(pageNumber >= 1 && pageNumber <= staticJsonPageContent.length) {
+                if (pageNumber >= 1 && pageNumber <= staticJsonPageContent.length) {
                     response.putHeader("content-type", "application/json").end(staticJsonPageContent[pageNumber - 1]);
                 } else {
-                    sendError(400, response);
+                    sendError(400, response, "Bad Request - Invalid Page Number");
                 }
             } catch (NumberFormatException e) {
-                sendError(400, response);
+                sendError(400, response, "Bad Request - Invalid Page Number");
             }
         }
     }
 
-    private void sendError(int statusCode, HttpServerResponse response) {
-        response.setStatusCode(statusCode).end();
+    private void sendError(int statusCode, HttpServerResponse response, String message) {
+        response.setStatusCode(statusCode).end(message);
     }
 
     private void initStaticData() {
