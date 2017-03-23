@@ -55,6 +55,8 @@ public class ServerVerticle extends AbstractVerticle {
                     sendError(400, response);
                 } else if(pageNumber >= 1 && pageNumber <= staticJsonPageContent.length) {
                     response.putHeader("content-type", "application/json").end(staticJsonPageContent[pageNumber - 1]);
+                } else {
+                    sendError(400, response);
                 }
             } catch (NumberFormatException e) {
                 sendError(400, response);
