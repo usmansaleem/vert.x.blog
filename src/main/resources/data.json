@@ -2,7 +2,7 @@
   {
     "id": 179,
     "title": "Let's encrypt - Free SSL certificates",
-    "body": "<a href=\"https://letsencrypt.org/\" target=\"_blank\">Let's encrypt</a> is free, automated and open certificate authority. I am using it on my site to be serve on https. The other good part is same certificate both for <a href=\"https://usmans.info/\" target=\"_blank\">usmans.info</a> and <a href=\"https://usman.id.au/\" target=\"_blank\">usman.id.au</a>. The only downside is that they are valid for 90 days, after which you need to renew and install them again. Its manual step to install certificate in Openshift.",
+    "body": "<a href=\"https://letsencrypt.org/\" target=\"_blank\">Let's encrypt</a> is free, automated and open certificate authority. I am using it on my site to get my site served on https. The other good part is same certificate both for <a href=\"https://usmans.info/\" target=\"_blank\">usmans.info</a> and <a href=\"https://usman.id.au/\" target=\"_blank\">usman.id.au</a>. The only downside is that they are valid for 90 days, after which you need to renew and install them again. Its manual step to install certificate in Openshift.",
     "categories": [
       {
         "id": 1,
