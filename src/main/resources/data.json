@@ -1,5 +1,22 @@
 [
   {
+    "id": 178,
+    "title": "Migrated blog software using Vert.x on Openshift",
+    "body": "Decided to re-wrote my blog server in Vert.x and deploy it on Openshift. The code is available on my <a href=\"https://github.com/usmansaleem/vert.x.blog\" target=\"_blank\">github account</a> as usual.",
+    "categories": [
+      {
+        "id": 1,
+        "name": "Java"
+      }
+    ],
+    "blogSection": null,
+    "createdOn": "2017-03-24",
+    "modifiedOn": "2017-03-24",
+    "createDay": "24",
+    "createMonth": "Mar",
+    "createYear": "2017"
+  },
+  {
     "id": 177,
     "title": "Bootstrap 3 and H2",
     "body": "Time to move to Bootstrap 3 and H2",

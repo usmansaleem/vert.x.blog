@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import info.usmans.blog.model.BlogItem;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -25,35 +28,57 @@ public class ServerVerticle extends AbstractVerticle {
     private int totalPages;
     private int itemsOnLastPage;
 
+    private HttpClient client;
+
     @Override
     public void start() {
-        vertx.fileSystem().readFile("data.json", res -> {
-            if (res.succeeded()) {
-                blogItems = gson.fromJson(res.result().toString(), new TypeToken<ArrayList<BlogItem>>() {
-                }.getType());
+        HttpClientOptions options = new HttpClientOptions().setDefaultHost("raw.githubusercontent.com")
+                .setDefaultPort(443).setSsl(true).setLogActivity(true);
+        client = vertx.createHttpClient(options);
 
-                totalPages = blogItems.size() / ITEMS_PER_PAGE;
-                itemsOnLastPage = blogItems.size() % ITEMS_PER_PAGE;
-                if (itemsOnLastPage != 0) {
-                    totalPages++;
-                }
-
-                Router router = Router.router(vertx);
-                router.route().handler(BodyHandler.create());
-                router.get("/rest/blog/highestPage").handler(this::handleGetHighestPage);
-                router.get("/rest/blog/listCategories").handler(this::handleGetListCategories);
-                router.get("/rest/blog/blogCount").handler(this::handleGetBlogCount);
-                router.get("/rest/blog/blogItems/:pageNumber").handler(this::handleGetBlogItemsMainCategoryByPageNumber);
-                router.route("/*").handler(StaticHandler.create());
+        client.getNow("/usmansaleem/vert.x.blog/master/src/main/resources/data.json", response -> response.bodyHandler(totalBuffer -> {
+            if (response.statusCode() == 200) {
+                updateData(totalBuffer);
+                Router router = createRoutes();
 
                 vertx.createHttpServer().requestHandler(router::accept).
                         listen(Integer.getInteger("http.port"), System.getProperty("http.address"));
-
             } else {
-                throw new RuntimeException(res.cause());
+                throw new RuntimeException("Invalid Status code while reading data." + response.statusCode() + ", " + totalBuffer.toString());
             }
-        });
 
+        }));
+    }
+
+    private Router createRoutes() {
+        Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
+        router.get("/rest/blog/refresh").handler(this::refreshData);
+        router.get("/rest/blog/highestPage").handler(this::handleGetHighestPage);
+        router.get("/rest/blog/listCategories").handler(this::handleGetListCategories);
+        router.get("/rest/blog/blogCount").handler(this::handleGetBlogCount);
+        router.get("/rest/blog/blogItems/:pageNumber").handler(this::handleGetBlogItemsMainCategoryByPageNumber);
+        router.route("/*").handler(StaticHandler.create());
+        return router;
+    }
+
+    private void refreshData(RoutingContext ignore) {
+        client.getNow("/usmansaleem/vert.x.blog/master/src/main/resources/data.json", response -> response.bodyHandler(totalBuffer -> {
+            if (response.statusCode() == 200) {
+                updateData(totalBuffer);
+            }
+        }));
+    }
+
+    private void updateData(Buffer totalBuffer) {
+        blogItems = gson.fromJson(totalBuffer.toString(), new TypeToken<ArrayList<BlogItem>>() {
+        }.getType());
+
+        totalPages = blogItems.size() / ITEMS_PER_PAGE;
+        itemsOnLastPage = blogItems.size() % ITEMS_PER_PAGE;
+        if (itemsOnLastPage != 0) {
+            totalPages++;
+        }
     }
 
     private void handleGetHighestPage(RoutingContext routingContext) {
@@ -97,7 +122,6 @@ public class ServerVerticle extends AbstractVerticle {
     private void sendBadRequestError(HttpServerResponse response, String message) {
         response.setStatusCode(400).end(message);
     }
-
 
 
 }
