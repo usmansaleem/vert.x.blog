@@ -1,5 +1,22 @@
 [
   {
+    "id": 179,
+    "title": "Let's encrypt - Free SSL certificates",
+    "body": "<a href=\"https://letsencrypt.org/\" target=\"_blank\">Let's encrypt</a> is free, automated and open certificate authority. I am using it on my site. The only downside is that they are valid for 90 days, after which you need to renew and install them again.",
+    "categories": [
+      {
+        "id": 1,
+        "name": "Java"
+      }
+    ],
+    "blogSection": null,
+    "createdOn": "2017-03-24",
+    "modifiedOn": "2017-03-24",
+    "createDay": "24",
+    "createMonth": "Mar",
+    "createYear": "2017"
+  },
+  {
     "id": 178,
     "title": "Migrated blog software using Vert.x on Openshift",
     "body": "Decided to re-wrote my blog server in Vert.x and deploy it on Openshift. The code is available on my <a href=\"https://github.com/usmansaleem/vert.x.blog\" target=\"_blank\">github account</a> as usual.",
