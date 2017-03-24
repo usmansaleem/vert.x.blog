@@ -62,10 +62,13 @@ public class ServerVerticle extends AbstractVerticle {
         return router;
     }
 
-    private void refreshData(RoutingContext ignore) {
+    private void refreshData(RoutingContext routingContext) {
         client.getNow("/usmansaleem/vert.x.blog/master/src/main/resources/data.json", response -> response.bodyHandler(totalBuffer -> {
             if (response.statusCode() == 200) {
                 updateData(totalBuffer);
+                routingContext.response().putHeader("content-type", "text/plain").end("Refreshed!");
+            } else {
+                routingContext.response().putHeader("content-type", "text/plain").end("Unable to refresh");
             }
         }));
     }
