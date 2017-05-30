@@ -2,7 +2,7 @@
   {
     "id": 180,
     "title": "Working with multiple git repo from parent directory",
-    "body": "The following git configuration can be used to work with multiple git repositories from same parent directory. Really useful for a project with multiple git repos. Usage would be <code>git all pull</code> or <code>git all status</code>.<br><code>[alias]\n   all = \"!sh -c \\\"find . -mindepth 1 -maxdepth 1 -type d -print -exec git -C {} $1 \\\\;\\\" -\"</code>",
+    "body": "The following git configuration can be used to work with multiple git repositories from same parent directory. Really useful for a project with multiple git repos. Usage would be <code>git all pull</code> or <code>git all status</code>.<br>[alias]\n   all = \"!sh -c \\\"find . -mindepth 1 -maxdepth 1 -type d -print -exec git -C {} $1 \\\\;\\\" -\"",
     "categories": [
       {
         "id": 3,
