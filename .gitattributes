@@ -1,3 +1,4 @@
-.gitattributes eol=lf
+.gitattributes text eol=lf
+.gitconfig text eol=lf
 *.java text eol=lf
 pom.xml text eol=lf
