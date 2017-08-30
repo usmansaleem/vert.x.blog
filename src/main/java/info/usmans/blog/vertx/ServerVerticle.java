@@ -14,9 +14,9 @@ import io.vertx.ext.web.handler.StaticHandler;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Sets up vert.x routes and start the server.
@@ -64,8 +64,8 @@ public class ServerVerticle extends AbstractVerticle {
     }
 
     private void initData(Reader reader) {
-        blogItems = gson.fromJson(reader, new TypeToken<ArrayList<BlogItem>>() {
-        }.getType());
+        List<BlogItem> list = gson.fromJson(reader, TypeToken.getParameterized(List.class, BlogItem.class).getType());
+        blogItems = new CopyOnWriteArrayList<>(list);
 
         if (blogItems == null) {
             blogItems = Collections.singletonList(buildEmptyBlogItem());
@@ -96,21 +96,24 @@ public class ServerVerticle extends AbstractVerticle {
         if (pageNumberParam == null) {
             sendBadRequestInvalidPageNumberError(response);
         } else {
+            int pageNumber;
             try {
-                int pageNumber = Integer.parseInt(pageNumberParam);
-                if (pageNumber >= 1 && pageNumber <= totalPages) {
-                    int endIdx = pageNumber * ITEMS_PER_PAGE;
-                    int startIdx = endIdx - ITEMS_PER_PAGE;
-
-                    if (pageNumber == this.totalPages && itemsOnLastPage != 0) {
-                        endIdx = startIdx + itemsOnLastPage;
-                    }
-
-                    response.putHeader("content-type", "application/json").end(gson.toJson(blogItems.subList(startIdx, endIdx)));
-                } else {
-                    sendBadRequestInvalidPageNumberError(response);
-                }
+                pageNumber = Integer.parseInt(pageNumberParam);
             } catch (NumberFormatException e) {
+                sendBadRequestInvalidPageNumberError(response);
+                return;
+            }
+
+            if (pageNumber >= 1 && pageNumber <= totalPages) {
+                int endIdx = pageNumber * ITEMS_PER_PAGE;
+                int startIdx = endIdx - ITEMS_PER_PAGE;
+
+                if (pageNumber == this.totalPages && itemsOnLastPage != 0) {
+                    endIdx = startIdx + itemsOnLastPage;
+                }
+
+                response.putHeader("content-type", "application/json").end(gson.toJson(blogItems.subList(startIdx, endIdx)));
+            } else {
                 sendBadRequestInvalidPageNumberError(response);
             }
         }
