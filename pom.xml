@@ -5,7 +5,7 @@
 
     <groupId>info.usmans</groupId>
     <artifactId>vertx-blog</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
 
     <properties>
         <encoding>UTF-8</encoding>
@@ -81,7 +81,7 @@
                             </transformers>
                             <artifactSet>
                             </artifactSet>
-                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar
+                            <outputFile>${project.build.directory}/${project.artifactId}-full.jar
                             </outputFile>
                         </configuration>
                     </execution>
@@ -116,7 +116,7 @@
                             <executable>java</executable>
                             <arguments>
                                 <argument>-jar</argument>
-                                <argument>target/${project.artifactId}-${project.version}-fat.jar</argument>
+                                <argument>target/${project.artifactId}-full.jar</argument>
                             </arguments>
                         </configuration>
                     </execution>
