@@ -6,7 +6,7 @@ RUN apk add --no-cache tini paxctl && paxctl -c /opt/jdk/bin/* && paxctl -m /opt
 COPY target/vertx-blog-full.jar /usr/local/bin
 
 # Tini is now available at /sbin/tini
-ENTRYPOINT ["/sbin/tini", "-g", "--"]
+ENTRYPOINT ["/sbin/tini", "-s", "-g", "--"]
 
 CMD ["/opt/jdk/bin/java" , "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-jar", "/usr/local/bin/vertx-blog-full.jar"]
 
